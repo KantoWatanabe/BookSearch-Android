@@ -1,9 +1,13 @@
 package kantowatanbae.booksearch
 
 import android.os.Bundle
+import android.view.Menu
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,5 +37,34 @@ class MainActivity : AppCompatActivity() {
 
         textMessage = findViewById(R.id.message)
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        val toolBar: Toolbar = findViewById(R.id.my_toolbar)
+        setSupportActionBar(toolBar)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        val searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                textMessage.text = query
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return true
+            }
+        })
+        return true
+    }
+    /*
+    override fun onOptionsItemSelected(item: MenuItem?) = when (item?.itemId) {
+        R.id.action_search -> {
+            Toast.makeText(this, "Search!", Toast.LENGTH_LONG)
+            true
+        }
+        else -> {
+            super.onOptionsItemSelected(item)
+        }
+    }
+    */
 }

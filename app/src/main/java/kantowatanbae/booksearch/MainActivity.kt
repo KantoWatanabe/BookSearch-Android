@@ -8,6 +8,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import kantowatanbae.booksearch.api.books.BooksResponseBody
+import kantowatanbae.booksearch.api.books.Repository
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,7 +52,17 @@ class MainActivity : AppCompatActivity() {
         val searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                textMessage.text = query
+                Repository.sharedInstance(applicationContext).api
+                    .volumes("intitle:$query")
+                    .enqueue(object: Callback<BooksResponseBody> {
+                        override fun onResponse(call: Call<BooksResponseBody>, response: Response<BooksResponseBody>) {
+                            textMessage.text = response.body().toString()
+                        }
+
+                        override fun onFailure(call: Call<BooksResponseBody>, t: Throwable) {
+                            textMessage.text = t.message
+                        }
+                    })
                 return true
             }
             override fun onQueryTextChange(newText: String?): Boolean {

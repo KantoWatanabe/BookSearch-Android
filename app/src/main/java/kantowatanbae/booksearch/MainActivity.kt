@@ -8,27 +8,32 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kantowatanbae.booksearch.adapter.BooksAdapter
 import kantowatanbae.booksearch.api.books.BooksResponseBody
 import kantowatanbae.booksearch.api.books.Repository
+import kantowatanbae.booksearch.model.Books
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var textMessage: TextView
+    private lateinit var booksRecyclerView: RecyclerView
+    private lateinit var booksAdapter: BooksAdapter
+
+    private var books: ArrayList<Books> = ArrayList()
+
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                textMessage.setText(R.string.title_home)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
-                textMessage.setText(R.string.title_dashboard)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_notifications -> {
-                textMessage.setText(R.string.title_notifications)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -40,8 +45,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
-        textMessage = findViewById(R.id.message)
-        navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+        booksRecyclerView = findViewById(R.id.books_recycler_view)
+        booksRecyclerView.setHasFixedSize(true)
+        booksRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        booksAdapter = BooksAdapter(books)
+        booksRecyclerView.adapter = booksAdapter
 
         val toolBar: Toolbar = findViewById(R.id.my_toolbar)
         setSupportActionBar(toolBar)
@@ -56,11 +65,15 @@ class MainActivity : AppCompatActivity() {
                     .volumes("intitle:$query")
                     .enqueue(object: Callback<BooksResponseBody> {
                         override fun onResponse(call: Call<BooksResponseBody>, response: Response<BooksResponseBody>) {
-                            textMessage.text = response.body().toString()
+                            books.clear()
+                            response.body()?.items?.forEach {
+                                books.add(Books(it.id, it.volumeInfo.title))
+                            }
+                            booksAdapter?.notifyDataSetChanged()
                         }
 
                         override fun onFailure(call: Call<BooksResponseBody>, t: Throwable) {
-                            textMessage.text = t.message
+                            Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG)
                         }
                     })
                 return true

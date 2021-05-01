@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kantowatanbae.booksearch.adapter.BooksAdapter
@@ -48,6 +49,9 @@ class MainActivity : AppCompatActivity() {
         booksRecyclerView = findViewById(R.id.books_recycler_view)
         booksRecyclerView.setHasFixedSize(true)
         booksRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        booksRecyclerView.addItemDecoration(itemDecoration)
 
         booksAdapter = BooksAdapter(this, books)
         booksRecyclerView.adapter = booksAdapter

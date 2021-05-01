@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         booksRecyclerView.setHasFixedSize(true)
         booksRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        booksAdapter = BooksAdapter(books)
+        booksAdapter = BooksAdapter(this, books)
         booksRecyclerView.adapter = booksAdapter
 
         val toolBar: Toolbar = findViewById(R.id.my_toolbar)
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                         override fun onResponse(call: Call<BooksResponseBody>, response: Response<BooksResponseBody>) {
                             books.clear()
                             response.body()?.items?.forEach {
-                                books.add(Books(it.id, it.volumeInfo.title))
+                                books.add(Books(it.id, it.volumeInfo.title, it.volumeInfo.imageLinks?.thumbnail))
                             }
                             booksAdapter?.notifyDataSetChanged()
                         }

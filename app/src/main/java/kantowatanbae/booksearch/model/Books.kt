@@ -1,3 +1,3 @@
 package kantowatanbae.booksearch.model
 
-data class Books(val id: String, val title: String)
+data class Books(val id: String, val title: String, val thumbnail: String?)

@@ -2,6 +2,7 @@ package kantowatanbae.booksearch
 
 import android.os.Bundle
 import android.view.Menu
+import android.widget.ProgressBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
@@ -23,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var booksRecyclerView: RecyclerView
     private lateinit var booksAdapter: BooksAdapter
+
+    private lateinit var progressBar: ProgressBar
 
     private var books: ArrayList<Books> = ArrayList()
 
@@ -56,6 +59,8 @@ class MainActivity : AppCompatActivity() {
         booksAdapter = BooksAdapter(this, books)
         booksRecyclerView.adapter = booksAdapter
 
+        progressBar = findViewById(R.id.progress_bar)
+
         val toolBar: Toolbar = findViewById(R.id.my_toolbar)
         setSupportActionBar(toolBar)
     }
@@ -66,10 +71,12 @@ class MainActivity : AppCompatActivity() {
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 searchView.clearFocus()
+                showProgress()
                 Repository.sharedInstance(applicationContext).api
                     .volumes("intitle:$query")
                     .enqueue(object: Callback<BooksResponseBody> {
                         override fun onResponse(call: Call<BooksResponseBody>, response: Response<BooksResponseBody>) {
+                            hideProgress()
                             books.clear()
                             response.body()?.items?.forEach {
                                 books.add(Books(it.id, it.volumeInfo.title, it.volumeInfo.imageLinks?.thumbnail))
@@ -78,6 +85,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onFailure(call: Call<BooksResponseBody>, t: Throwable) {
+                            hideProgress()
                             Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG)
                         }
                     })
@@ -89,6 +97,15 @@ class MainActivity : AppCompatActivity() {
         })
         return true
     }
+
+    private fun showProgress() {
+        progressBar.visibility = ProgressBar.VISIBLE
+    }
+
+    private fun hideProgress() {
+        progressBar.visibility = ProgressBar.INVISIBLE
+    }
+
     /*
     override fun onOptionsItemSelected(item: MenuItem?) = when (item?.itemId) {
         R.id.action_search -> {
